@@ -13,7 +13,7 @@ public class Server_com {
 	Socket s;
 
 	public Server_com(String ipAddr, int  port) {
-
+		//TODO String and int validation on user inputs.
 	}
 
 	void send(User u){
