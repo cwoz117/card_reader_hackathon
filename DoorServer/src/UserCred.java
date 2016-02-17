@@ -60,7 +60,8 @@ public class UserCred implements java.io.Serializable
 	}
 		 
 	private void readObjectNoData()
-	     throws ObjectStreamException{
+	     throws ObjectStreamException
+	{
 		 
 	}
 }
