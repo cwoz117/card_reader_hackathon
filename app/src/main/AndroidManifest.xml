@@ -18,6 +18,22 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-    </application>
+
+        <!--
+             Used to let our app request access for NFC Access
+        -->
+        <users-permission android:name="android.permission.NFC"/>
+        <uses-sdk android:minSdkVersion="19"/>
+        <uses-feature android:name="android.hardware.nfc" android:required="true" />
+        <!--
+            Tells the app which kind of nfc action to look for while waiting
+            for an NFC event.
+        -->
+        <intent-filter>
+            <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+        </intent-filter>
+
+
+</application>
 
 </manifest>
