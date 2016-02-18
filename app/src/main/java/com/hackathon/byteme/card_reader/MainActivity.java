@@ -57,16 +57,17 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 	public void onAccountReceived(final String account) {
 		// This callback is run on a background thread, but updates to UI elements must be performed
 		// on the UI thread.
+		disableReaderMode();
 
 	}
-	private void enableReaderMode() {
+	public void enableReaderMode() {
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
 		if (nfc != null) {
 			nfc.enableReaderMode(this, r, READER_FLAGS, null);
 		}
 	}
 
-	private void disableReaderMode() {
+	private  void disableReaderMode() {
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
 		if (nfc != null) {
 			nfc.disableReaderMode(this);

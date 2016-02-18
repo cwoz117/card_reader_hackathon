@@ -17,6 +17,7 @@ import java.util.Arrays;
 public class Reader implements NfcAdapter.ReaderCallback{
 	private String ip;
 	private int port;
+	MainActivity ptr;
 	private static final String AID = "F222222222";
 	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
 
@@ -49,6 +50,7 @@ public class Reader implements NfcAdapter.ReaderCallback{
 			byte[] msg = formatApdu(AID);
 			System.out.println(byteToHex(msg));
 			byte[] userCreds = connection.transceive(msg);
+			connection.close();
 			System.out.println("Sent message should be: " + byteToHex(RECEIVED_OK));
 			System.out.println("Sent message, and received a reply:" + byteToHex(userCreds));
 			byte[] status = {userCreds[userCreds.length-2],
@@ -61,7 +63,7 @@ public class Reader implements NfcAdapter.ReaderCallback{
 				thr = new Thread(s);
 				thr.start();
 
-				connection.close();
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
