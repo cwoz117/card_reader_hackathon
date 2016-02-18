@@ -1,9 +1,4 @@
 import java.io.Serializable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class User implements Serializable{
 
@@ -19,7 +14,7 @@ public class User implements Serializable{
 		ucid = u;
 		password = p;
 	}
-	
+
 	public User(String received){
 		String[] a = received.split(" ");
 		ucid = a[0];
