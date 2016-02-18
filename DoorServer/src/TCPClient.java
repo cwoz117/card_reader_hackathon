@@ -33,10 +33,15 @@ class TCPClient {
         BufferedReader inBuffer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));         
         DataInputStream inData = new DataInputStream(clientSocket.getInputStream());
 
+        outBuffer.writeBytes(user.getUCID() + " " + user.getPassword()); 
+        outBuffer.flush();
+        clientSocket.close();      
+/*
         // Initialize user input stream
         String line; 
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
 
+        
         // Get user input and send to the server
         // Display the echo meesage from the server
         System.out.print("Please enter a message to be sent to the server ('logout' to terminate): ");
@@ -45,7 +50,6 @@ class TCPClient {
         while (!line.equals("logout"))
         {           
             String[] split = line.split(" ");
-            
             // Send to the server
             outBuffer.writeBytes(line + "\n"); 
 
@@ -69,7 +73,7 @@ class TCPClient {
         }
 
         // Close the socket
-        clientSocket.close();           
+        clientSocket.close();       */    
     } 
     
     static void receiveFile(DataInputStream inBuffer)

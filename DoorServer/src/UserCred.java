@@ -10,7 +10,7 @@ public class UserCred implements java.io.Serializable
 	public UserCred(String id, String pwd)
 	{
 		setUCID(id);
-		setPassword(password);
+		setPassword(pwd);
 	}
 	
 	public String getUCID()

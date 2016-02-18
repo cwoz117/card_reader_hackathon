@@ -17,7 +17,15 @@ import java.awt.image.BufferedImage;
 public class DoorServer extends JFrame
 {	
     public static int BUFFERSIZE = 256;
-    UserCred[] users;     
+    static UserCred[] users;     
+    static BasicEx ex;
+    
+    static void openDoor()
+    {
+    	//Surface s = ex.getSurface();
+    	//s.paintAll(g);
+        System.out.println("open that door!!!");
+    }
     
     public static void main(String args[]) throws Exception 
     {
@@ -27,6 +35,7 @@ public class DoorServer extends JFrame
             System.exit(1);
         }
 
+    	users = new UserCred[]{new UserCred("12345678", "butts")};
     	EventQueue.invokeLater(new Runnable() 
 		{
 	        @Override
@@ -59,15 +68,6 @@ public class DoorServer extends JFrame
         // Register that the server selector is interested in connection requests
         tcp_channel.register(selector, SelectionKey.OP_ACCEPT);
 
-        // Declare a UDP server socket and a datagram packet
-        DatagramChannel udp_channel = null;
-        
-        udp_channel = DatagramChannel.open();
-        InetSocketAddress udp_isa = new InetSocketAddress(Integer.parseInt(args[0]));
-        udp_channel.socket().bind(udp_isa);
-        udp_channel.configureBlocking(false);
-        udp_channel.register(selector, SelectionKey.OP_READ);
-        
         // Wait for something happen among all registered sockets
         try {
             boolean terminated = false;
@@ -133,83 +133,11 @@ public class DoorServer extends JFrame
 	                            line = cBuffer.toString();
 	                            System.out.print("TCP Client: " + line);
 
-                            	String[] strSplit = line.split(" ");
-                            	
-	                            if (line.equals("list\n"))
-	                            {   
-	                            	String outputStr = getFileList(".");
-	                            	int strLen = outputStr.length();
-	                            	
-	                            	ByteBuffer bufferSize = ByteBuffer.allocate(4);
-		                            bufferSize.putInt(strLen);
-		                            bufferSize.rewind();
-		                            cchannel.write(bufferSize);
-	                            	
-	                            	CharBuffer newcb = CharBuffer.allocate(strLen);
-	                            	ByteBuffer outBuf = ByteBuffer.allocate(strLen);
-
-	                            	newcb.put(outputStr);
-	                            	newcb.rewind();
-	                            	encoder.encode(newcb, outBuf, false);
-	                            	outBuf.flip();
-		                            bytesSent = cchannel.write(outBuf); 
-
-		                            if (bytesSent != outputStr.length())
-		                            {
-		                                System.out.println("write() error, or connection closed");
-		                                key.cancel();  // deregister the socket
-		                                continue;
-		                            }
-	                            }
-	                            else if (strSplit[0].equals("get"))
-	                            {
-		                            String filename = strSplit[1];
-		                            filename = filename.replaceAll("\\s+", "");			// trim whitespace
-		                            System.out.print(String.format("Open file: %s\n", filename));
-
-		                            byte[] data = getFile(filename);
-		                            if (data == null)
-		                            {
-		                                System.out.println(filename + " not found.");		                            
-		                            }
-		                            else
-		                            {       
-		                            	ByteBuffer bufferSize = ByteBuffer.allocate(8);
-			                            bufferSize.putLong(data.length);
-			                            bufferSize.rewind();
-			                            cchannel.write(bufferSize);
-		                            
-			                            ByteBuffer outBuf = ByteBuffer.allocate(data.length);
-			                            outBuf.put(data);
-			                            outBuf.flip();
-			                            cchannel.write(outBuf);
-		                            }
-	                            }
-	                            else if (line.equals("terminate\n"))
-	                            {
-	                                terminated = true;
-	                            }
-	                            else
-	                            {
-	                            	line = line.replaceAll("\\s+", "");			// trim whitespace
-	                            	String outStr = String.format("Unknown command: %s\n", line);
-	                            	int outLen = outStr.length();
-	                            	CharBuffer newcb = CharBuffer.allocate(outLen);
-	                            	ByteBuffer outBuf = ByteBuffer.allocate(outLen);
-	                            	
-	                            	newcb.put(outStr);
-	                            	newcb.rewind();
-	                            	encoder.encode(newcb, outBuf, false);
-	                            	outBuf.flip();
-		                            bytesSent = cchannel.write(outBuf); 
-		                            
-		                            if (bytesSent != outLen)
-		                            {
-		                                System.out.println("write() error, or connection closed");
-		                                key.cancel();  // deregister the socket
-		                                continue;
-		                            }
-	                            }
+	                            String[] split = line.split(" ");
+	                            UserCred user = new UserCred(split[0], split[1]);
+	                            if (users[0].getUCID().equals(split[0]) &&
+                            		users[0].getPassword().equals(split[1]))
+	                            	openDoor();
                         	}
                     	}
                     }
@@ -238,47 +166,6 @@ public class DoorServer extends JFrame
         }
     }
 
-    static byte[] getFile(String filename)
-    {
-    	byte[] result = null;
-	    
-    	try
-	    {	
-  		    File f = new File(filename);
-  		    FileInputStream input = new FileInputStream(f);
-
-	    	int size = (int)f.length();
-		    result = new byte[size];
-
-		    input.read(result);
-	    }
-	    catch(IOException e) {
-            System.out.println("open() failed");
-        }
-	    return result;
-    }
-    
-    static String getFileList(String dir)
-    {
-	    String result = "";
-		try
-		{
-		    String current = new File(dir).getCanonicalPath();
-		    File directory = new File(current);
-		    File[] files = directory.listFiles();
-			
-		    for (int i = 0; i < files.length; i++) 
-			{
-				if (files[i].isFile()) 
-					result += files[i].getName() + '\n';
-		    }
-		}
-        catch (IOException e) {
-            System.out.println(e);
-        }
-		return result;
-    }    
-    
     static void closeChannel(SelectableChannel channel)
     {
     	try

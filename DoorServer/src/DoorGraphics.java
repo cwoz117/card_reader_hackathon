@@ -40,6 +40,7 @@ class Surface extends JPanel {
     private void doDrawing(Graphics g) 
     {
         Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.RED);
         g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
         g2d.drawImage(locked ? imgLock : imgUnlock, 0, 0, null);
     }
