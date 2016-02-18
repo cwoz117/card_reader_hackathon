@@ -64,14 +64,29 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 	public void enableReaderMode() {
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
 		if (nfc != null) {
+			Logger.print("Enable Reader Mode");
 			nfc.enableReaderMode(this, r, READER_FLAGS, null);
 		}
+	}
+
+	@Override
+	public void onPause(){
+		super.onPause();
+
+	}
+
+	@Override
+	public void onResume(){
+		super.onResume();
+		enableReaderMode();
 	}
 
 	public  void disableReaderMode() {
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
 		if (nfc != null) {
+			Logger.print("Disabling Reader Mode");
 			nfc.disableReaderMode(this);
+
 		}
 	}
 }

@@ -12,11 +12,11 @@
     <!--
         Tells the app which kind of nfc action to look for while waiting
         for an NFC event.
-    -->
-    <intent-filter>
-        <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-    </intent-filter>
 
+    <intent-filter>
+
+    </intent-filter>
+-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -29,6 +29,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
