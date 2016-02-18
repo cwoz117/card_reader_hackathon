@@ -4,6 +4,7 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.NdefMessage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,14 @@ public class Reader implements NfcAdapter.ReaderCallback{
 		List<NdefRecord> l = Arrays.asList(m.getRecords());
 		NdefRecord rec = l.get(1);
 
-		User user = (User) rec.getPayload();
+		User user = null;
+		try {
+			user = (User)User.deserialize(rec.getPayload());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		Server_com s = new Server_com("172.0.0.1", 65000);
 		s.send(user);
