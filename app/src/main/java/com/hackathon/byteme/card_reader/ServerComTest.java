@@ -7,7 +7,10 @@ package com.hackathon.byteme.card_reader;
 public class ServerComTest {
     public static void main(String args[])
     {
-        Server_com com = new Server_com();
-        com.send("12345678 butts");
+        Server_com com = new Server_com("10.6.6.10", 50);
+
+        com.setData("12345678 butts");
+        Thread thr = new Thread(com);
+        thr.start();
     }
 }

@@ -15,7 +15,8 @@ import java.util.Arrays;
  * com.hackathon.byteme.card_reader.Reader handles the onTagDiscovered event prompted by another NFC device coming into range.
  */
 public class Reader implements NfcAdapter.ReaderCallback{
-	private Server_com s;
+	private String ip;
+	private int port;
 	private static final String AID = "F222222222";
 	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
 
@@ -26,12 +27,17 @@ public class Reader implements NfcAdapter.ReaderCallback{
 	public interface AccountCallback {
 		public void onAccountReceived(String account);
 	}
-
-	public Reader(AccountCallback a,  String server, int port) {
+	public void setServerInfo(String s, int i){
+		ip = s;
+		port = i;
+	}
+	public Reader(AccountCallback a) {
 		mAccountCallback = new WeakReference<AccountCallback>(a);
-		new Server_com(server, port);
 	}
 	public void onTagDiscovered(Tag t){
+		Thread thr;
+		//TODO Can be called before ip/port have any values.
+		Server_com s = new Server_com(ip, port);
 		System.out.println("Heard shit from NFC");
 		// Setup Connection with NFC Card.
 		IsoDep connection = IsoDep.get(t);
@@ -50,9 +56,11 @@ public class Reader implements NfcAdapter.ReaderCallback{
 			byte[] payload = Arrays.copyOf(userCreds, userCreds.length-2);
 			if (Arrays.equals(RECEIVED_OK, status)){
 				// forward received response to server.
-				System.out.println("Sending Payload");
-				s.send(new String(payload));
-				System.out.println("Received Payload");
+				System.out.println("Sending Payload" + byteToHex(payload));
+				s.setData(new String(payload));
+				thr = new Thread(s);
+				thr.start();
+
 				connection.close();
 			}
 		} catch (IOException e) {

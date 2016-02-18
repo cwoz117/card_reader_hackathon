@@ -15,13 +15,11 @@ import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity implements Reader.AccountCallback{
 	Reader r;
-	public static int READER_FLAGS =
-	NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
+	public static int READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 	}
 
 	@Override
@@ -41,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.action_settings) {
 			return true;
-
-
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -52,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 		EditText ip = (EditText) findViewById(R.id.txtAddress);
 		EditText port = (EditText) findViewById(R.id.txtPort);
 
-		r = new Reader(this, ip.getText().toString(), Integer.parseInt(port.getText().toString()));
+		r = new Reader(this);
+		r.setServerInfo(ip.getText().toString(), Integer.parseInt(port.getText().toString()));
 		CheckBox chk = (CheckBox) findViewById(R.id.chkRunning);
 		chk.setVisibility(View.VISIBLE);
 		enableReaderMode();
