@@ -13,6 +13,16 @@ public class UserCred implements java.io.Serializable
 		setPassword(pwd);
 	}
 	
+	public boolean equals(UserCred other)
+	{
+        if (!ucid.equals(other.ucid))
+        	return false;
+        if (!password.equals(other.password))
+        	return false;
+        	
+    	return true;
+	}
+	
 	public String getUCID()
 	{
 		return new String(ucid);

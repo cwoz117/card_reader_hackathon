@@ -17,11 +17,11 @@ import static java.util.concurrent.TimeUnit.*;
 
 public class DoorServer extends JFrame
 {	
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    public static int BUFFERSIZE = 256;
-    static UserCred[] users;     
     static BasicEx ex;
+    static UserCred[] users;     
     static int LOCK_DELAY = 2;
+    public static int BUFFERSIZE = 256;
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     static void openDoor()
     {
@@ -33,13 +33,18 @@ public class DoorServer extends JFrame
 	        public void run() {	        	
 	        	ex.getSurface().setLocked(true);
 	        	ex.getContentPane().repaint();
-	            System.out.println("close it!!!");
+	            System.out.println("Locking door.");
 	        }	        
         }, LOCK_DELAY, SECONDS);
     	
-        System.out.println("open that door!!!");
+        System.out.println("Opening door.");
     }
 
+    static void loadUsers()
+    {
+    	users = new UserCred[]{new UserCred("12345678", "butts")};
+    }
+    
     public static void main(String args[]) throws Exception 
     {
         if (args.length != 1)
@@ -48,8 +53,9 @@ public class DoorServer extends JFrame
             System.exit(1);
         }
 
-    	users = new UserCred[]{new UserCred("12345678", "butts")};
-    	EventQueue.invokeLater(new Runnable() 
+        loadUsers();
+
+        EventQueue.invokeLater(new Runnable() 
 		{
 	        @Override
 	        public void run() {
@@ -147,10 +153,12 @@ public class DoorServer extends JFrame
 	                            System.out.println("TCP Client: " + line);
 
 	                            String[] split = line.split(" ");
-	                            UserCred user = new UserCred(split[0], split[1]);
-	                            if (users[0].getUCID().equals(split[0]) &&
-                            		users[0].getPassword().equals(split[1]))
-	                            	openDoor();
+	                            UserCred testUser = new UserCred(split[0], split[1]);
+	                            
+	                            for (int i = 0; i < users.length; i++){	                            	
+	                            	if (testUser.equals(users[i]));
+	                            		openDoor();
+	                            }
                         	}
                     	}
                     }
