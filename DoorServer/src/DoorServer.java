@@ -12,21 +12,34 @@ import java.nio.charset.*;
 import java.util.*;
 import javax.swing.JFrame;
 import java.awt.EventQueue;
-import java.awt.image.BufferedImage;
+import java.util.concurrent.*;
+import static java.util.concurrent.TimeUnit.*;
 
 public class DoorServer extends JFrame
 {	
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     public static int BUFFERSIZE = 256;
     static UserCred[] users;     
     static BasicEx ex;
-    
+    static int LOCK_DELAY = 2;
+
     static void openDoor()
     {
-    	//Surface s = ex.getSurface();
-    	//s.paintAll(g);
+    	ex.getSurface().setLocked(false);
+    	ex.getContentPane().repaint();
+
+    	scheduler.schedule(new Runnable() {
+	        @Override
+	        public void run() {	        	
+	        	ex.getSurface().setLocked(true);
+	        	ex.getContentPane().repaint();
+	            System.out.println("close it!!!");
+	        }	        
+        }, LOCK_DELAY, SECONDS);
+    	
         System.out.println("open that door!!!");
     }
-    
+
     public static void main(String args[]) throws Exception 
     {
         if (args.length != 1)
@@ -40,7 +53,7 @@ public class DoorServer extends JFrame
 		{
 	        @Override
 	        public void run() {
-	            BasicEx ex = new BasicEx();
+	            ex = new BasicEx();
 	            ex.setVisible(true);
 	        }
     	});
@@ -131,7 +144,7 @@ public class DoorServer extends JFrame
 	                            decoder.decode(inBuffer, cBuffer, false);
 	                            cBuffer.flip();
 	                            line = cBuffer.toString();
-	                            System.out.print("TCP Client: " + line);
+	                            System.out.println("TCP Client: " + line);
 
 	                            String[] split = line.split(" ");
 	                            UserCred user = new UserCred(split[0], split[1]);

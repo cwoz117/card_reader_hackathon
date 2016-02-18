@@ -13,7 +13,7 @@ class Surface extends JPanel {
 	
     private Image imgLock;
     private Image imgUnlock;
-    private boolean locked;
+    private boolean locked = true;
 
     public boolean getLocked()
     {
