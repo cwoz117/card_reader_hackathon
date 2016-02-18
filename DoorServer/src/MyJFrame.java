@@ -2,7 +2,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 
-public class BasicEx extends JFrame {
+public class MyJFrame extends JFrame {
 
 	private Surface surface;
 	
@@ -11,7 +11,7 @@ public class BasicEx extends JFrame {
 		return surface;
 	}
 	
-    public BasicEx() {
+    public MyJFrame() {
 
         initUI();
     }

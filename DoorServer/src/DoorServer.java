@@ -16,7 +16,7 @@ import static java.util.concurrent.TimeUnit.*;
 
 public class DoorServer
 {	
-    static BasicEx ex;
+    static MyJFrame ex;
     static UserCred[] userCreds;     
     static int LOCK_DELAY = 2;
     public static int BUFFERSIZE = 256;
@@ -30,6 +30,7 @@ public class DoorServer
         }
         return false;
     }
+    
     static void openDoor()
     {
     	ex.getSurface().setLocked(false);
@@ -66,7 +67,7 @@ public class DoorServer
 		{
 	        @Override
 	        public void run() {
-	            ex = new BasicEx();
+	            ex = new MyJFrame();
 	            ex.setVisible(true);
 	        }
     	});
