@@ -10,19 +10,26 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.nio.charset.*;
 import java.util.*;
-import javax.swing.JFrame;
 import java.awt.EventQueue;
 import java.util.concurrent.*;
 import static java.util.concurrent.TimeUnit.*;
 
-public class DoorServer extends JFrame
+public class DoorServer
 {	
     static BasicEx ex;
-    static UserCred[] users;     
+    static UserCred[] userCreds;     
     static int LOCK_DELAY = 2;
     public static int BUFFERSIZE = 256;
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    static boolean hasAccess(UserCred testCred)
+    {
+        for (int i = 0; i < userCreds.length; i++){	                            	
+        	if (testCred.equals(userCreds[i]))
+        		return true;
+        }
+        return false;
+    }
     static void openDoor()
     {
     	ex.getSurface().setLocked(false);
@@ -42,7 +49,7 @@ public class DoorServer extends JFrame
 
     static void loadUsers()
     {
-    	users = new UserCred[]{new UserCred("12345678", "butts")};
+    	userCreds = new UserCred[]{new UserCred("12345678", "butts")};
     }
     
     public static void main(String args[]) throws Exception 
@@ -153,12 +160,10 @@ public class DoorServer extends JFrame
 	                            System.out.println("TCP Client: " + line);
 
 	                            String[] split = line.split(" ");
-	                            UserCred testUser = new UserCred(split[0], split[1]);
-	                            
-	                            for (int i = 0; i < users.length; i++){	                            	
-	                            	if (testUser.equals(users[i]));
-	                            		openDoor();
-	                            }
+
+	                            if (split.length == 2 && 
+	                            		hasAccess(new UserCred(split[0], split[1])))
+	                            	openDoor();
                         	}
                     	}
                     }
