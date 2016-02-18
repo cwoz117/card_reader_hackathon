@@ -13,6 +13,9 @@ import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+
 public class MainActivity extends AppCompatActivity implements Reader.AccountCallback{
 
 	Reader r;
@@ -49,7 +52,9 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 		EditText ip = (EditText) findViewById(R.id.txtAddress);
 		EditText port = (EditText) findViewById(R.id.txtPort);
 
-		r = new Reader(this);
+		if (r == null) {
+			r = new Reader(this);
+		}
 		r.setServerInfo(ip.getText().toString(), Integer.parseInt(port.getText().toString()));
 		CheckBox chk = (CheckBox) findViewById(R.id.chkRunning);
 		chk.setVisibility(View.VISIBLE);
