@@ -10,7 +10,17 @@ public class UserCred implements java.io.Serializable
 	public UserCred(String id, String pwd)
 	{
 		setUCID(id);
-		setPassword(password);
+		setPassword(pwd);
+	}
+	
+	public boolean equals(UserCred other)
+	{
+        if (!ucid.equals(other.ucid))
+        	return false;
+        if (!password.equals(other.password))
+        	return false;
+        	
+    	return true;
 	}
 	
 	public String getUCID()
@@ -60,7 +70,8 @@ public class UserCred implements java.io.Serializable
 	}
 		 
 	private void readObjectNoData()
-	     throws ObjectStreamException{
+	     throws ObjectStreamException
+	{
 		 
 	}
 }

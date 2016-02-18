@@ -10,16 +10,49 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.nio.charset.*;
 import java.util.*;
-import javax.swing.JFrame;
 import java.awt.EventQueue;
-import java.awt.image.BufferedImage;
+import java.util.concurrent.*;
+import static java.util.concurrent.TimeUnit.*;
 
-public class DoorServer extends JFrame
+public class DoorServer
 {	
+    static MyJFrame ex;
+    static UserCred[] userCreds;     
+    static int LOCK_DELAY = 2;
     public static int BUFFERSIZE = 256;
-    public BufferedImage img_lock;
-    public BufferedImage img_unlock;
-          
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    static boolean hasAccess(UserCred testCred)
+    {
+        for (int i = 0; i < userCreds.length; i++){	                            	
+        	if (testCred.equals(userCreds[i]))
+        		return true;
+        }
+        return false;
+    }
+    
+    static void openDoor()
+    {
+    	ex.getSurface().setLocked(false);
+    	ex.getContentPane().repaint();
+
+    	scheduler.schedule(new Runnable() {
+	        @Override
+	        public void run() {	        	
+	        	ex.getSurface().setLocked(true);
+	        	ex.getContentPane().repaint();
+	            System.out.println("Locking door.");
+	        }	        
+        }, LOCK_DELAY, SECONDS);
+    	
+        System.out.println("Opening door.");
+    }
+
+    static void loadUsers()
+    {
+    	userCreds = new UserCred[]{new UserCred("12345678", "butts")};
+    }
+    
     public static void main(String args[]) throws Exception 
     {
         if (args.length != 1)
@@ -28,11 +61,13 @@ public class DoorServer extends JFrame
             System.exit(1);
         }
 
-    	EventQueue.invokeLater(new Runnable() {
-	
+        loadUsers();
+
+        EventQueue.invokeLater(new Runnable() 
+		{
 	        @Override
 	        public void run() {
-	            BasicEx ex = new BasicEx();
+	            ex = new MyJFrame();
 	            ex.setVisible(true);
 	        }
     	});
@@ -60,15 +95,6 @@ public class DoorServer extends JFrame
         // Register that the server selector is interested in connection requests
         tcp_channel.register(selector, SelectionKey.OP_ACCEPT);
 
-        // Declare a UDP server socket and a datagram packet
-        DatagramChannel udp_channel = null;
-        
-        udp_channel = DatagramChannel.open();
-        InetSocketAddress udp_isa = new InetSocketAddress(Integer.parseInt(args[0]));
-        udp_channel.socket().bind(udp_isa);
-        udp_channel.configureBlocking(false);
-        udp_channel.register(selector, SelectionKey.OP_READ);
-        
         // Wait for something happen among all registered sockets
         try {
             boolean terminated = false;
@@ -106,20 +132,7 @@ public class DoorServer extends JFrame
                     else 
                     {
                     	SelectableChannel sc = key.channel();
-                    	/*
-                    	if (sc instanceof DatagramChannel)		// is it UDP?
-                    	{
-                        	DatagramChannel dc = (DatagramChannel)sc;
-                    		line = do_UDP(dc, key, inBuffer, cBuffer, decoder);		// process UDP
-                    		
-							if (line == null)
-								continue;
-							
-                            if (line.equals("terminate"))
-                                terminated = true;
-                    	}
-                    	else		// it's not UDP, must be TCP then
-                    	*/
+
                     	{
 	                        SocketChannel cchannel = (SocketChannel)sc;
 	                        if (key.isReadable())
@@ -145,85 +158,13 @@ public class DoorServer extends JFrame
 	                            decoder.decode(inBuffer, cBuffer, false);
 	                            cBuffer.flip();
 	                            line = cBuffer.toString();
-	                            System.out.print("TCP Client: " + line);
+	                            System.out.println("TCP Client: " + line);
 
-                            	String[] strSplit = line.split(" ");
-                            	
-	                            if (line.equals("list\n"))
-	                            {   
-	                            	String outputStr = getFileList(".");
-	                            	int strLen = outputStr.length();
-	                            	
-	                            	ByteBuffer bufferSize = ByteBuffer.allocate(4);
-		                            bufferSize.putInt(strLen);
-		                            bufferSize.rewind();
-		                            cchannel.write(bufferSize);
-	                            	
-	                            	CharBuffer newcb = CharBuffer.allocate(strLen);
-	                            	ByteBuffer outBuf = ByteBuffer.allocate(strLen);
+	                            String[] split = line.split(" ");
 
-	                            	newcb.put(outputStr);
-	                            	newcb.rewind();
-	                            	encoder.encode(newcb, outBuf, false);
-	                            	outBuf.flip();
-		                            bytesSent = cchannel.write(outBuf); 
-
-		                            if (bytesSent != outputStr.length())
-		                            {
-		                                System.out.println("write() error, or connection closed");
-		                                key.cancel();  // deregister the socket
-		                                continue;
-		                            }
-	                            }
-	                            else if (strSplit[0].equals("get"))
-	                            {
-		                            String filename = strSplit[1];
-		                            filename = filename.replaceAll("\\s+", "");			// trim whitespace
-		                            System.out.print(String.format("Open file: %s\n", filename));
-
-		                            byte[] data = getFile(filename);
-		                            if (data == null)
-		                            {
-		                                System.out.println(filename + " not found.");		                            
-		                            }
-		                            else
-		                            {       
-		                            	ByteBuffer bufferSize = ByteBuffer.allocate(8);
-			                            bufferSize.putLong(data.length);
-			                            bufferSize.rewind();
-			                            cchannel.write(bufferSize);
-		                            
-			                            ByteBuffer outBuf = ByteBuffer.allocate(data.length);
-			                            outBuf.put(data);
-			                            outBuf.flip();
-			                            cchannel.write(outBuf);
-		                            }
-	                            }
-	                            else if (line.equals("terminate\n"))
-	                            {
-	                                terminated = true;
-	                            }
-	                            else
-	                            {
-	                            	line = line.replaceAll("\\s+", "");			// trim whitespace
-	                            	String outStr = String.format("Unknown command: %s\n", line);
-	                            	int outLen = outStr.length();
-	                            	CharBuffer newcb = CharBuffer.allocate(outLen);
-	                            	ByteBuffer outBuf = ByteBuffer.allocate(outLen);
-	                            	
-	                            	newcb.put(outStr);
-	                            	newcb.rewind();
-	                            	encoder.encode(newcb, outBuf, false);
-	                            	outBuf.flip();
-		                            bytesSent = cchannel.write(outBuf); 
-		                            
-		                            if (bytesSent != outLen)
-		                            {
-		                                System.out.println("write() error, or connection closed");
-		                                key.cancel();  // deregister the socket
-		                                continue;
-		                            }
-	                            }
+	                            if (split.length == 2 && 
+	                            		hasAccess(new UserCred(split[0], split[1])))
+	                            	openDoor();
                         	}
                     	}
                     }
@@ -252,47 +193,6 @@ public class DoorServer extends JFrame
         }
     }
 
-    static byte[] getFile(String filename)
-    {
-    	byte[] result = null;
-	    
-    	try
-	    {	
-  		    File f = new File(filename);
-  		    FileInputStream input = new FileInputStream(f);
-
-	    	int size = (int)f.length();
-		    result = new byte[size];
-
-		    input.read(result);
-	    }
-	    catch(IOException e) {
-            System.out.println("open() failed");
-        }
-	    return result;
-    }
-    
-    static String getFileList(String dir)
-    {
-	    String result = "";
-		try
-		{
-		    String current = new File(dir).getCanonicalPath();
-		    File directory = new File(current);
-		    File[] files = directory.listFiles();
-			
-		    for (int i = 0; i < files.length; i++) 
-			{
-				if (files[i].isFile()) 
-					result += files[i].getName() + '\n';
-		    }
-		}
-        catch (IOException e) {
-            System.out.println(e);
-        }
-		return result;
-    }    
-    
     static void closeChannel(SelectableChannel channel)
     {
     	try
@@ -312,47 +212,4 @@ public class DoorServer extends JFrame
             System.out.println(e);
     	}
     }
-    
-    static String do_UDP(DatagramChannel dc, 
-			    		SelectionKey key, 
-			    		ByteBuffer inBuffer, 
-			    		CharBuffer cBuffer, 
-			    		CharsetDecoder decoder) throws IOException
-    {
-        if (key.isReadable())
-        {
-            // Open input and output streams
-            inBuffer = ByteBuffer.allocateDirect(BUFFERSIZE);
-            cBuffer = CharBuffer.allocate(BUFFERSIZE);
-         
-            // Read from socket
-            SocketAddress addr = dc.receive(inBuffer);
-            if (addr == null)
-            {
-                System.out.println("read() error, or connection closed");
-                key.cancel();  // deregister the socket
-                return null;
-            }
-             
-            inBuffer.flip();      // make buffer available  
-            decoder.decode(inBuffer, cBuffer, false);
-            cBuffer.flip();
-            String line = cBuffer.toString();
-            int bytesRecv = line.length();
-            System.out.print(String.format("UDP Client: %s\n", line));
-   	                          
-            // Echo the message back
-            inBuffer.flip();
-            int bytesSent = dc.send(inBuffer, addr); 
-            if (bytesSent != bytesRecv)
-            {
-                System.out.println("write() error, or connection closed");
-                key.cancel();  // deregister the socket
-                return null;
-            }
-            return line;
-         }
-        return null;
-    }
-    
 }
