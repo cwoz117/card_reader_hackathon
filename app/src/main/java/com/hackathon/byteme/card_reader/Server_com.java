@@ -15,14 +15,21 @@ public class Server_com {
 	Socket s;
 
 	public Server_com(String ipAddr, int  port) {
-		//TODO String and int validation on user inputs.
+		ip = ipAddr;
+		this.port = port;
 	}
 
 	void send(String user_data){
+		System.out.println("SERVER - In Send");
 		try {
+
 			s = new Socket(ip, port);
+			System.out.println("SERVER - Connected");
 			BufferedWriter o = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+			System.out.println("SERVER - Writing...");
 			o.write(user_data);
+			o.flush();
+			System.out.println("SERVER - Wrote Data to Server");
 			s.close();
 		} catch (IOException e) {
 			e.printStackTrace();

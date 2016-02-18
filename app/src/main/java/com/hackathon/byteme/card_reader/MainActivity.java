@@ -1,5 +1,7 @@
 package com.hackathon.byteme.card_reader;
 
+import android.app.Activity;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,9 +13,10 @@ import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Reader.AccountCallback{
 	Reader r;
-
+	public static int READER_FLAGS =
+	NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,8 +51,28 @@ public class MainActivity extends AppCompatActivity {
 	public void btnStart_clicked(View v){
 		EditText ip = (EditText) findViewById(R.id.txtAddress);
 		EditText port = (EditText) findViewById(R.id.txtPort);
-		r = new Reader(ip.getText().toString(), Integer.parseInt(port.getText().toString()));
+
+		r = new Reader(this, ip.getText().toString(), Integer.parseInt(port.getText().toString()));
 		CheckBox chk = (CheckBox) findViewById(R.id.chkRunning);
 		chk.setVisibility(View.VISIBLE);
+		enableReaderMode();
+	}
+	public void onAccountReceived(final String account) {
+		// This callback is run on a background thread, but updates to UI elements must be performed
+		// on the UI thread.
+
+	}
+	private void enableReaderMode() {
+		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+		if (nfc != null) {
+			nfc.enableReaderMode(this, r, READER_FLAGS, null);
+		}
+	}
+
+	private void disableReaderMode() {
+		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+		if (nfc != null) {
+			nfc.disableReaderMode(this);
+		}
 	}
 }

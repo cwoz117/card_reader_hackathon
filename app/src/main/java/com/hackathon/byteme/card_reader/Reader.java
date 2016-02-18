@@ -1,5 +1,6 @@
 package com.hackathon.byteme.card_reader;
 
+import android.app.Fragment;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
@@ -7,6 +8,7 @@ import android.nfc.tech.IsoDep;
 import com.hackathon.byteme.card_reader.Server_com;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 /**
@@ -17,10 +19,18 @@ public class Reader implements NfcAdapter.ReaderCallback{
 	private static final String AID = "F222222222";
 	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
 
-	public Reader(String server, int port){
-		new Server_com(server, port);
+	// Weak reference to prevent retain loop. mAccountCallback is responsible for exiting
+	// foreground mode before it becomes invalid (e.g. during onPause() or onStop()).
+	private WeakReference<AccountCallback> mAccountCallback;
+
+	public interface AccountCallback {
+		public void onAccountReceived(String account);
 	}
 
+	public Reader(AccountCallback a,  String server, int port) {
+		mAccountCallback = new WeakReference<AccountCallback>(a);
+		new Server_com(server, port);
+	}
 	public void onTagDiscovered(Tag t){
 		System.out.println("Heard shit from NFC");
 		// Setup Connection with NFC Card.
@@ -31,8 +41,9 @@ public class Reader implements NfcAdapter.ReaderCallback{
 
 			// Define APDU_COMMAND AID, and send to Tag. Wait for a reply.
 			byte[] msg = formatApdu(AID);
+			System.out.println(byteToHex(msg));
 			byte[] userCreds = connection.transceive(msg);
-
+			System.out.println("Sent message should be: " + byteToHex(RECEIVED_OK));
 			System.out.println("Sent message, and received a reply:" + byteToHex(userCreds));
 			byte[] status = {userCreds[userCreds.length-2],
 			                     userCreds[userCreds.length-1]};
@@ -42,6 +53,7 @@ public class Reader implements NfcAdapter.ReaderCallback{
 				System.out.println("Sending Payload");
 				s.send(new String(payload));
 				System.out.println("Received Payload");
+				connection.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -49,7 +61,7 @@ public class Reader implements NfcAdapter.ReaderCallback{
 	}
 
 	private byte[] formatApdu(String a){
-		return hexToByte("00A40400" + String.format("%02X", AID.length()) + a);
+		return hexToByte("00A40400" + String.format("%02X", (a.length()/2)) + a);
 	}
 
 	private byte[] hexToByte(String s){
