@@ -1,3 +1,4 @@
+import android.nfc.FormatException;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -14,38 +15,62 @@ import java.util.List;
  */
 public class Reader implements NfcAdapter.ReaderCallback{
 
+	private static final String AID = "ABCDEFABCD";
+	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
+
+	public Reader(){
+
+	}
+
 	public void onTagDiscovered(Tag t){
 
-		// Define APDU_COMMAND AID
+		// Setup Connection with NFC Card.
 		IsoDep connection = IsoDep.get(t);
 		try {
 			connection.connect();
+
+			// Define APDU_COMMAND AID
+			byte[] msg = formatApdu(AID);
+
+			// Send Command to remote device and
+			// wait for a received response from remote device
+			byte[] userCreds = connection.transceive(msg);
+			byte[] status = {userCreds[userCreds.length-2],
+			                     userCreds[userCreds.length-1]};
+			byte[] payload = Arrays.copyOf(userCreds, userCreds.length-2);
+			if (Arrays.equals(RECEIVED_OK, status)){
+				// forward received response to server.
+				Server_com s = new Server_com("172.0.0.1", 65000);
+				s.send(new String(payload));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
-		// Send Command to remote device
+	private byte[] formatApdu(String a){
+		return hexToByte("00A40400" + String.format("%02X", AID.length()) + a);
+	}
 
-		
-		// Wait for a received response from remote device
+	private byte[] hexToByte(String s){
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+			+ Character.digit(s.charAt(i+1), 16));
+		}
+		return data;
+	}
 
-		// forward received response to server.
-
-
-
-
-		// Get the NDEFMessage from the Tag.
-		Ndef n = Ndef.get(t);
-		if (n == null)
-			System.exit(0);		//TODO: Update how we want to exit.
-		NdefMessage m = n.getCachedNdefMessage();
-
-		// Get the records from the Message
-		List<NdefRecord> l = Arrays.asList(m.getRecords());
-		NdefRecord rec = l.get(1);
-
-		// Send the byte data to the server.
-		Server_com s = new Server_com("172.0.0.1", 65000);
-		s.send(new String(rec.getPayload()));
+	private String byteToHex(byte[] b){
+		final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+		char[] hexChars = new char[b.length * 2];
+		int v;
+		for ( int j = 0; j < b.length; j++ ) {
+			v = b[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 }
