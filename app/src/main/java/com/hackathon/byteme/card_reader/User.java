@@ -1,3 +1,5 @@
+package com.hackathon.byteme.card_reader;
+
 import java.io.Serializable;
 
 public class User implements Serializable{

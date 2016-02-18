@@ -1,47 +1,47 @@
-import android.nfc.FormatException;
-import android.nfc.NdefRecord;
+package com.hackathon.byteme.card_reader;
+
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
-import android.nfc.tech.Ndef;
-import android.nfc.NdefMessage;
+
+import com.hackathon.byteme.card_reader.Server_com;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 /**
- * Reader handles the onTagDiscovered event prompted by another NFC device coming into range.
+ * com.hackathon.byteme.card_reader.Reader handles the onTagDiscovered event prompted by another NFC device coming into range.
  */
 public class Reader implements NfcAdapter.ReaderCallback{
-
-	private static final String AID = "ABCDEFABCD";
+	private Server_com s;
+	private static final String AID = "F222222222";
 	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
 
-	public Reader(){
-
+	public Reader(String server, int port){
+		new Server_com(server, port);
 	}
 
 	public void onTagDiscovered(Tag t){
-
+		System.out.println("Heard shit from NFC");
 		// Setup Connection with NFC Card.
 		IsoDep connection = IsoDep.get(t);
 		try {
 			connection.connect();
+			System.out.println("Connected to NFC");
 
-			// Define APDU_COMMAND AID
+			// Define APDU_COMMAND AID, and send to Tag. Wait for a reply.
 			byte[] msg = formatApdu(AID);
-
-			// Send Command to remote device and
-			// wait for a received response from remote device
 			byte[] userCreds = connection.transceive(msg);
+
+			System.out.println("Sent message, and received a reply:" + byteToHex(userCreds));
 			byte[] status = {userCreds[userCreds.length-2],
 			                     userCreds[userCreds.length-1]};
 			byte[] payload = Arrays.copyOf(userCreds, userCreds.length-2);
 			if (Arrays.equals(RECEIVED_OK, status)){
 				// forward received response to server.
-				Server_com s = new Server_com("172.0.0.1", 65000);
+				System.out.println("Sending Payload");
 				s.send(new String(payload));
+				System.out.println("Received Payload");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

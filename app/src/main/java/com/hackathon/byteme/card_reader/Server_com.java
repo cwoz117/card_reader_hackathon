@@ -1,3 +1,5 @@
+package com.hackathon.byteme.card_reader;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
