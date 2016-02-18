@@ -4,7 +4,7 @@
     <!--
          Used to let our app request access for NFC Access
     -->
-    <users-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.NFC"/>
     <uses-sdk android:minSdkVersion="19"/>
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
@@ -58,6 +58,6 @@
 
 
 
-</application>
+    </application>
 
 </manifest>
