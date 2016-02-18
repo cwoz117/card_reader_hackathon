@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.io.BufferedWriter;
 
@@ -18,8 +19,8 @@ public class Server_com {
 	void send(String user_data){
 		try {
 			s = new Socket(ip, port);
-			BufferedWriter o = new BufferedWriter(s.getOutputStream());
-			o.writeObject(u);
+			BufferedWriter o = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+			o.write(user_data);
 			s.close();
 		} catch (IOException e) {
 			e.printStackTrace();
