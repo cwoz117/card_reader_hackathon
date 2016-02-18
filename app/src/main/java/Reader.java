@@ -34,7 +34,6 @@ public class Reader implements NfcAdapter.ReaderCallback{
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
 		Server_com s = new Server_com("172.0.0.1", 65000);
 		s.send(user);
 

@@ -19,6 +19,12 @@ public class User implements Serializable{
 		ucid = u;
 		password = p;
 	}
+	
+	public User(String received){
+		String[] a = received.split(" ");
+		ucid = a[0];
+		password = a[1];
+	}
 
 	public String getUcid(){
 		return ucid;
@@ -38,17 +44,5 @@ public class User implements Serializable{
 
 	public String toString(){
 		return ucid + "\n" + password;
-	}
-
-	public static byte[] serialize(User obj) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = new ObjectOutputStream(out);
-		os.writeObject(obj);
-		return out.toByteArray();
-	}
-	public static User deserialize(byte[] data) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream in = new ByteArrayInputStream(data);
-		ObjectInputStream is = new ObjectInputStream(in);
-		return (User)is.readObject();
 	}
 }
