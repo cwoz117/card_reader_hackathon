@@ -17,7 +17,8 @@ import java.util.Arrays;
 public class Reader implements NfcAdapter.ReaderCallback{
 	private String ip;
 	private int port;
-	MainActivity ptr;
+	private MainActivity ptr;
+
 	private static final String AID = "F222222222";
 	private static final byte[] RECEIVED_OK = {(byte) 0x90, (byte)0x00};
 
@@ -34,9 +35,14 @@ public class Reader implements NfcAdapter.ReaderCallback{
 	}
 	public Reader(AccountCallback a) {
 		mAccountCallback = new WeakReference<AccountCallback>(a);
+		ptr = (MainActivity)a;
 	}
+
+
+
 	public void onTagDiscovered(Tag t){
 		Thread thr;
+
 		//TODO Can be called before ip/port have any values.
 		Server_com s = new Server_com(ip, port);
 		System.out.println("Heard shit from NFC");
@@ -62,7 +68,7 @@ public class Reader implements NfcAdapter.ReaderCallback{
 				s.setData(new String(payload));
 				thr = new Thread(s);
 				thr.start();
-
+				ptr.disableReaderMode();
 
 			}
 		} catch (IOException e) {

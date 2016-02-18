@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity implements Reader.AccountCallback{
+
 	Reader r;
 	public static int READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
 	@Override
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements Reader.AccountCal
 		}
 	}
 
-	private  void disableReaderMode() {
+	public  void disableReaderMode() {
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
 		if (nfc != null) {
 			nfc.disableReaderMode(this);
