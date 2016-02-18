@@ -25,21 +25,21 @@ public class Server_com implements Runnable{
 		data = d;
 	}
 	public void run(){
-		System.out.println("SERVER - In Send");
-		System.out.println("IP:PORT " + ip + ":" + port);
+		Logger.print("SERVER - In Send");
+		Logger.print("IP:PORT " + ip + ":" + port);
 		try {
 			s = new Socket(ip, port);
-			System.out.println("Socket Created");
-			System.out.println("SERVER - Connected");
+			Logger.print("Socket Created");
+			Logger.print("SERVER - Connected");
 			BufferedWriter o = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-			System.out.println("SERVER - Writing...");
+			Logger.print("SERVER - Writing...");
 			o.write(data);
 			o.flush();
-			System.out.println("SERVER - Wrote Data to Server");
+			Logger.print("SERVER - Wrote Data to Server");
 			s.close();
-			System.out.println("Received Payload");
+			Logger.print("Received Payload");
 		} catch (IOException e) {
-			System.out.println("hello");
+			Logger.print("hello");
 			e.printStackTrace();
 			if (s != null){
 				try {

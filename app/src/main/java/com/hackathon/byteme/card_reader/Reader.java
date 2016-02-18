@@ -45,26 +45,28 @@ public class Reader implements NfcAdapter.ReaderCallback{
 
 		//TODO Can be called before ip/port have any values.
 		Server_com s = new Server_com(ip, port);
-		System.out.println("Heard shit from NFC");
+		Logger.print("Heard shit from NFC");
 		// Setup Connection with NFC Card.
 		IsoDep connection = IsoDep.get(t);
 		try {
 			connection.connect();
-			System.out.println("Connected to NFC");
+			Logger.print("Connected to NFC");
 
 			// Define APDU_COMMAND AID, and send to Tag. Wait for a reply.
 			byte[] msg = formatApdu(AID);
-			System.out.println(byteToHex(msg));
+			Logger.print(byteToHex(msg));
 			byte[] userCreds = connection.transceive(msg);
 			connection.close();
-			System.out.println("Sent message should be: " + byteToHex(RECEIVED_OK));
-			System.out.println("Sent message, and received a reply:" + byteToHex(userCreds));
+
+			Logger.print("Sent message should be: " + byteToHex(RECEIVED_OK));
+			Logger.print("Sent message, and received a reply:" + byteToHex(userCreds));
+
 			byte[] status = {userCreds[userCreds.length-2],
 			                     userCreds[userCreds.length-1]};
 			byte[] payload = Arrays.copyOf(userCreds, userCreds.length-2);
 			if (Arrays.equals(RECEIVED_OK, status)){
 				// forward received response to server.
-				System.out.println("Sending Payload" + byteToHex(payload));
+				Logger.print("Sending Payload" + byteToHex(payload));
 				s.setData(new String(payload));
 				thr = new Thread(s);
 				thr.start();
