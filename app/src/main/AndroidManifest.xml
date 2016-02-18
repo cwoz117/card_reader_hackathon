@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.hackathon.byteme.card_reader"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hackathon.byteme.card_reader">
     <!--
          Used to let our app request access for NFC Access
     -->
     <uses-permission android:name="android.permission.NFC"/>
-    <uses-sdk android:minSdkVersion="19"/>
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
+    <uses-sdk android:minSdkVersion="19"/>
 
     <!--
         Tells the app which kind of nfc action to look for while waiting
@@ -25,7 +25,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -37,27 +38,6 @@
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>
-            <meta-data
-                android:name="android.nfc.action.TECH_DISCOVERED" />
-
-
         </activity>
-
-        <!--
-            Intent Filter identifies which NDEF Tags we care about. When the OS
-            identifies one, this application will be the one that opens.
-
-        <intent-filter>
-            <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-            <category android:name="android.intent.category.DEFAULT"/>
-            <data android:scheme="http"
-                  android:host="byteme.hackathon.ca"
-                  android:pathPrefix="/index.html" />
-        </intent-filter>
--->
-
-
-
     </application>
-
 </manifest>
