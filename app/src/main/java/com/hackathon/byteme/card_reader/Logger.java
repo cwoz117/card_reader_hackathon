@@ -5,7 +5,7 @@ package com.hackathon.byteme.card_reader;
  */
 public final class Logger {
     static boolean debug = true;
-    static boolean fullStackTrace = true;
+    static boolean fullStackTrace = false;
 
     private Logger(){}
 

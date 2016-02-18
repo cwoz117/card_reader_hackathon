@@ -9,14 +9,6 @@
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
     <uses-sdk android:minSdkVersion="19"/>
 
-    <!--
-        Tells the app which kind of nfc action to look for while waiting
-        for an NFC event.
-    -->
-    <intent-filter>
-        <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-    </intent-filter>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -29,15 +21,9 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-
-            <!-- NFC-related intent filter. Allows application to handle messages from any
-     NFC-A devices discovered. Other Android devices are required to support NFC-A.
-     See: res/xml/nfc_tech_filter.xml -->
-            <intent-filter>
-                <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>
         </activity>
     </application>

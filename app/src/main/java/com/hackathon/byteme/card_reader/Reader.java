@@ -71,7 +71,6 @@ public class Reader implements NfcAdapter.ReaderCallback{
 				thr = new Thread(s);
 				thr.start();
 				ptr.disableReaderMode();
-
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
