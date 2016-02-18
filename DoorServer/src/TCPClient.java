@@ -12,9 +12,13 @@ import java.net.*;
 import java.nio.CharBuffer; 
 
 class TCPClient { 
+	
+	static UserCred user;
 
     public static void main(String args[]) throws Exception 
     { 
+    	user = new UserCred("12345678", "butts");
+    	
         if (args.length != 2)
         {
             System.out.println("Usage: TCPClient <Server IP> <Server Port>");

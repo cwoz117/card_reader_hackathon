@@ -5,13 +5,25 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 class Surface extends JPanel {
 
+	static final long serialVersionUID = 1;
+	
     private Image imgLock;
     private Image imgUnlock;
+    private boolean locked;
+
+    public boolean getLocked()
+    {
+    	return locked;
+    }
+
+    public void setLocked(boolean b)
+    {
+    	locked = b;
+    }
     
     public Surface()
     {
@@ -29,7 +41,7 @@ class Surface extends JPanel {
     {
         Graphics2D g2d = (Graphics2D) g;
         g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
-        g2d.drawImage(imgLock, 0, 0, null);
+        g2d.drawImage(locked ? imgLock : imgUnlock, 0, 0, null);
     }
 
     private void setSurfaceSize() {

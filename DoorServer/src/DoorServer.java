@@ -17,9 +17,8 @@ import java.awt.image.BufferedImage;
 public class DoorServer extends JFrame
 {	
     public static int BUFFERSIZE = 256;
-    public BufferedImage img_lock;
-    public BufferedImage img_unlock;
-          
+    UserCred[] users;     
+    
     public static void main(String args[]) throws Exception 
     {
         if (args.length != 1)
@@ -28,8 +27,8 @@ public class DoorServer extends JFrame
             System.exit(1);
         }
 
-    	EventQueue.invokeLater(new Runnable() {
-	
+    	EventQueue.invokeLater(new Runnable() 
+		{
 	        @Override
 	        public void run() {
 	            BasicEx ex = new BasicEx();
@@ -106,20 +105,7 @@ public class DoorServer extends JFrame
                     else 
                     {
                     	SelectableChannel sc = key.channel();
-                    	/*
-                    	if (sc instanceof DatagramChannel)		// is it UDP?
-                    	{
-                        	DatagramChannel dc = (DatagramChannel)sc;
-                    		line = do_UDP(dc, key, inBuffer, cBuffer, decoder);		// process UDP
-                    		
-							if (line == null)
-								continue;
-							
-                            if (line.equals("terminate"))
-                                terminated = true;
-                    	}
-                    	else		// it's not UDP, must be TCP then
-                    	*/
+
                     	{
 	                        SocketChannel cchannel = (SocketChannel)sc;
 	                        if (key.isReadable())
@@ -312,47 +298,4 @@ public class DoorServer extends JFrame
             System.out.println(e);
     	}
     }
-    
-    static String do_UDP(DatagramChannel dc, 
-			    		SelectionKey key, 
-			    		ByteBuffer inBuffer, 
-			    		CharBuffer cBuffer, 
-			    		CharsetDecoder decoder) throws IOException
-    {
-        if (key.isReadable())
-        {
-            // Open input and output streams
-            inBuffer = ByteBuffer.allocateDirect(BUFFERSIZE);
-            cBuffer = CharBuffer.allocate(BUFFERSIZE);
-         
-            // Read from socket
-            SocketAddress addr = dc.receive(inBuffer);
-            if (addr == null)
-            {
-                System.out.println("read() error, or connection closed");
-                key.cancel();  // deregister the socket
-                return null;
-            }
-             
-            inBuffer.flip();      // make buffer available  
-            decoder.decode(inBuffer, cBuffer, false);
-            cBuffer.flip();
-            String line = cBuffer.toString();
-            int bytesRecv = line.length();
-            System.out.print(String.format("UDP Client: %s\n", line));
-   	                          
-            // Echo the message back
-            inBuffer.flip();
-            int bytesSent = dc.send(inBuffer, addr); 
-            if (bytesSent != bytesRecv)
-            {
-                System.out.println("write() error, or connection closed");
-                key.cancel();  // deregister the socket
-                return null;
-            }
-            return line;
-         }
-        return null;
-    }
-    
 }
